@@ -1,53 +1,121 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define FASTIO  ios_base::sync_with_stdio(0);cin.tie(0);
 
-typedef long long ll;
-typedef pair<ll, ll> pll;
-typedef pair<int,int> pii;
-typedef vector<ll> vl;
-typedef vector<string> vs;
-typedef vector<vl> vll;
+vector<pair<int, int>> ans[3];
+int a[100][100];
 
-const ll mx = 998244353;
-const ll inf = 1e18;
-
-const ll s=2e5+5;
-vl fib(s),inv(s);
-
-ll pow(int n){
-    if(n==1)return inv[2];
-    ll temp=pow(n/2);
-    // printf("%lld %lld\n",n,temp);
-    if(n%2)return ((temp*temp)%mx)*inv[2]%mx;
-    else return(temp*temp)%mx;
+void flip(int i, int j, int id) {
+	if (id >= 0) ans[id].emplace_back(i+1, j+1);
+	a[i][j] ^= 1;
 }
 
-void solve(){
-    ll n;
-    cin>>n;
+void solve() {
+	int n, m; cin >> n >> m;
+	ans[0].clear();
+	ans[1].clear();
+	ans[2].clear();
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			char c; cin >> c;
+			a[i][j] = c - '0';
+		}
+	}
 
-    // printf("%lld %lld\n",fib[n],inv[1<<n]);
-    ll res=(fib[n]*pow(n))%mx;
-    cout<<res<<endl;
+	for (int i = n-1; i >= 2; i--) {
+		for (int j = m-1; j >= 0; j--) {
+			if (a[i][j] == 1) {
+				// i j, i-1 j, i-1 j-1
+				if (j > 0) {
+					flip(i, j, 0);
+					flip(i-1, j, 1);
+					flip(i-1, j-1, 2);
+				} else {
+					flip(i, j, 0);
+					flip(i-1, j, 1);
+					flip(i-1, j+1, 2);
+				}
+			}
+		}
+	}
+
+	for (int j = m-1; j >= 2; j--) {
+		for (int i = 0; i < 2; i++) {
+			if (a[i][j] == 1) {
+				flip(i, j, 0);
+				flip(i, j-1, 1);
+				flip(i^1, j-1, 2);
+			}
+		}
+	}
+
+	for (int msk = 0; msk < (1 << 4); msk++) {
+		// flip all
+		int gg = 0;
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 2; j++) {
+				if (msk & (1 << gg)) {
+					flip(i, j, -1);
+					flip(i^1, j, -1);
+					flip(i, j^1, -1);
+				}
+				gg++;
+			}
+		}
+
+		// is feasible
+		bool is_feasible = 1;
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 2; j++) {
+				if (a[i][j]) is_feasible = 0;
+			}
+		}
+
+		// flip back
+		gg = 0;
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 2; j++) {
+				if (msk & (1 << gg)) {
+					flip(i, j, -1);
+					flip(i^1, j, -1);
+					flip(i, j^1, -1);
+				}
+				gg++;
+			}
+		}
+
+		if (is_feasible) {
+			// output
+			gg = 0;
+			for (int i = 0; i < 2; i++) {
+				for (int j = 0; j < 2; j++) {
+					if (msk & (1 << gg)) {
+						flip(i, j, 0);
+						flip(i^1, j, 1);
+						flip(i, j^1, 2);
+					}
+					gg++;
+				}
+			}
+			break;
+		}
+	}
+
+	cout << ans[0].size() << '\n';
+	for (int i = 0; i < ans[0].size(); i++) {
+		for (int j = 0; j < 3; j++) {
+			cout << ans[j][i].first << ' ' << ans[j][i].second << ' ';
+		}
+		cout << '\n';
+	}
 }
 
+signed main() {
+	ios::sync_with_stdio(0); cin.tie(0);
 
-int main() {
-    FASTIO
-
-    fib[0]=0;
-    fib[1]=1;
-    for(int i=2;i<s;i++)fib[i]=(fib[i-1]+fib[i-2])%mx;
-
-    inv[0]=inv[1]=1;
-    for(int i=2;i<s;i++)inv[i]=(inv[mx%i]*(mx-mx/i))%mx;
-
-    solve();
-
-//    int t;
-//    cin>>t;
-//    while(t--)solve();
-
-    return 0;
+	int t; cin >> t;
+	while (t--) {
+		solve();
+	}
+	
+	return 0;
 }
