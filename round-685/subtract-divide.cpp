@@ -11,23 +11,37 @@ typedef vector<vl> vll;
 const ll mx = 1e9+7;
 const ll inf = 1e18;
 
+bool isPrime(int n){
+	if(n==1)return false;
+	if(n==2 || n==3)return true;
+	
+	for(int i=2;i*i<=n;i++){
+		if(n%i==0)return false;
+	}
+	return true;
+}
+
 void solve(){
 	int n;
 	cin>>n;
-	vl arr(n);
-	ll sum=0,mele=0;
-	for(int i=0;i<n;i++){
-		cin>>arr[i];
-		sum+=arr[i];
-		mele=max(mele,arr[i]);
+
+	int res=0;
+	while(n!=1){
+		if(isPrime(n) || n%2){
+			n--;
+		}else{
+			for(int i=2;i*i<=n;i++){
+				if(n%i==0){
+					n=i;
+					break;
+				}
+			}
+		}
+		res++;
 	}
-
-	ll temp=ceil((double)sum/(n-1));
-	temp=max(mele,temp);
-	temp=temp*(n-1);
-	cout<<temp-sum<<endl;
-
+	cout<<res<<endl;
 }
+
 
 int main() {
     FASTIO

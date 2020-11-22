@@ -12,21 +12,26 @@ const ll mx = 1e9+7;
 const ll inf = 1e18;
 
 void solve(){
-	int n;
-	cin>>n;
-	vl arr(n);
-	ll sum=0,mele=0;
-	for(int i=0;i<n;i++){
-		cin>>arr[i];
-		sum+=arr[i];
-		mele=max(mele,arr[i]);
+	int n,k;
+	cin>>n>>k;
+
+	string a,b;
+	cin>>a>>b;
+
+	vl af(27),bf(27);
+	for(auto x: a)af[x-'a']++;
+	for(auto x: b)bf[x-'a']++;
+
+	for(int i=0;i<26;i++){
+		int diff=af[i]-bf[i];
+		if(diff<0 || diff%k){
+			cout<<"No"<<endl;
+			return;
+		}
+		af[i+1]+=diff;
+		af[i]-=diff;
 	}
-
-	ll temp=ceil((double)sum/(n-1));
-	temp=max(mele,temp);
-	temp=temp*(n-1);
-	cout<<temp-sum<<endl;
-
+	cout<<"Yes"<<endl;
 }
 
 int main() {
